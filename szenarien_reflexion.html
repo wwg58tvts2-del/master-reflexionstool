@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KI-DMS Reflexionstool – Vergleich</title>
+
+    <!-- Bootstrap (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f7f7f9;
+        }
+
+        .page-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card {
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .question-title {
+            font-weight: 600;
+        }
+
+        .hint {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .compare-result {
+            border-left: 4px solid #0d6efd;
+            background: #f0f6ff;
+        }
+
+        .badge-soft {
+            background: #eef2ff;
+            color: #1e40af;
+            border: 1px solid #dbeafe;
+            font-weight: 600;
+        }
+
+        .mini-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .value-pill {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            font-weight: 600;
+        }
+
+        .delta-note {
+            font-size: 0.9rem;
+            color: #495057;
+        }
+
+        .required-marker {
+            color: #dc3545;
+            font-weight: 700;
+        }
+
+        .sticky-actions {
+            position: sticky;
+            bottom: 0;
+            background: rgba(247,247,249,0.95);
+            backdrop-filter: blur(6px);
+            border-top: 1px solid #e9ecef;
+            padding: 12px 0;
+            z-index: 10;
+        }
+
+        .drag-container {
+            display: flex;
+            gap: 20px;
+        }
+        .drag-list {
+            flex: 1;
+            height: auto;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .drag-item {
+            padding: 8px;
+            margin: 4px 0;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            cursor: move;
+        }
+        .drag-item.dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header py-3 mb-4">
+        <div class="container">
+            <div>
+                <h1 class="h4 mb-1">KI-DMS Reflexionstool</h1>
+                <div class="text-muted">Eigene Einschätzungen erfassen und anschließend mit Medianwerten der Stichprobe vergleichen.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="alert alert-info">
+            <div class="fw-semibold mb-1">Hinweis</div>
+            <div>
+                Dieses Tool gibt <span class="fw-semibold">keine Empfehlungen</span> aus. Nach Klick auf <span class="fw-semibold">„Vergleichen"</span>
+                werden Ihre Eingaben den Medianwerten der Befragung gegenübergestellt (gesamt sowie nach Rollenprofil).
+            </div>
+        </div>
+
+        <!-- Neue Frage für Vergleich -->
+        <div class="card mb-3" id="comparisonQuestion">
+            <div class="card-body">
+                <div class="question-title mb-2"><span class="required-marker">*</span> Mit welcher Gruppe möchten Sie Ihr Ergebnis vergleichen?</div>
+                <select class="form-select" id="comparison_type">
+                    <option value="">Vergleichsgruppe auswählen</option>
+                    <option value="all">Gesamtstichprobe</option>
+                    <option value="technik">Technische Betreuung</option>
+                    <option value="orga">Organisatorische Verantwortung</option>
+                    <option value="all_detailed">Alle Vergleichsgruppen anzeigen</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div id="tabsSection">
+            <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tab-funktionen" data-bs-toggle="tab" data-bs-target="#pane-funktionen" type="button" role="tab">
+                        Reiter 1: Funktionalitäten
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-betrieb" data-bs-toggle="tab" data-bs-target="#pane-betrieb" type="button" role="tab">
+                        Reiter 2: Cloud / On-Prem
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="tab-weitere" data-bs-toggle="tab" data-bs-target="#pane-weitere" type="button" role="tab">
+                        Reiter 3: Weitere KI-Funktionen
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3" id="mainTabsContent">
+                <!-- Reiter 1 -->
+                <div class="tab-pane fade show active" id="pane-funktionen" role="tabpanel" aria-labelledby="tab-funktionen">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 class="h5 mb-2">Einschätzung potenzieller KI-Funktionalitäten</h2>
+                            <div class="hint">
+                                Bitte bewerten Sie den erwarteten Nutzen für Ihre Hochschule.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="funktion-questions"></div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="question-title mb-2">
+                                <span class="required-marker">*</span> Welche Funktionalitäten sollten aus Ihrer Sicht <span class="fw-semibold">kurzfristig realistisch</span> umgesetzt werden?
+                            </div>
+                            <div class="hint mb-2">Ziehen Sie die Funktionen von links nach rechts und ordnen Sie sie in die gewünschte Reihenfolge.</div>
+                            <div class="drag-container">
+                                <div class="drag-list" id="available">
+                                    <h6>Verfügbare Funktionen</h6>
+                                    <!-- Items werden per JS hinzugefügt -->
+                                </div>
+                                <div class="drag-list" id="selected">
+                                    <h6>Ihre Reihenfolge</h6>
+                                    <!-- Items werden hierher gezogen -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reiter 2 -->
+                <div class="tab-pane fade" id="pane-betrieb" role="tabpanel" aria-labelledby="tab-betrieb">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 class="h5 mb-2">Einordnung der Betriebsform (Cloud vs. On-Premises)</h2>
+                            <div class="hint">Bitte wählen Sie jeweils eine Antwort. Diese Angaben dienen dem Vergleich mit den Medianwerten.</div>
+                        </div>
+                    </div>
+
+                    <div id="betrieb-questions"></div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="question-title mb-2">
+                                <span class="required-marker">*</span> Welche Chancen sehen Sie in der Nutzung von KI im DMS?
+                            </div>
+                            <div class="hint mb-2">Ziehen Sie die Chancen von links nach rechts und ordnen Sie sie in die gewünschte Reihenfolge.</div>
+                            <div class="drag-container">
+                                <div class="drag-list" id="chancen-available">
+                                    <h6>Verfügbare Chancen</h6>
+                                    <!-- Items werden per JS hinzugefügt -->
+                                </div>
+                                <div class="drag-list" id="chancen-selected">
+                                    <h6>Ihre Reihenfolge</h6>
+                                    <!-- Items werden hierher gezogen -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="question-title mb-2">
+                                <span class="required-marker">*</span> Welche Herausforderungen/Hemmnisse erwarten Sie?
+                            </div>
+                            <div class="hint mb-2">Ziehen Sie die Hemmnisse von links nach rechts und ordnen Sie sie in die gewünschte Reihenfolge.</div>
+                            <div class="drag-container">
+                                <div class="drag-list" id="hemmnisse-available">
+                                    <h6>Verfügbare Hemmnisse</h6>
+                                    <!-- Items werden per JS hinzugefügt -->
+                                </div>
+                                <div class="drag-list" id="hemmnisse-selected">
+                                    <h6>Ihre Reihenfolge</h6>
+                                    <!-- Items werden hierher gezogen -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reiter 3 -->
+                <div class="tab-pane fade" id="pane-weitere" role="tabpanel" aria-labelledby="tab-weitere">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h2 class="h5 mb-2">Weitere gewünschte KI-Funktionen</h2>
+                            <div class="alert alert-warning mb-3">
+                                <div class="fw-semibold mb-1">Hinweis zur Datenherkunft</div>
+                                <div>
+                                    Die nachfolgenden Funktionswünsche stammen aus Freitextantworten der Befragung.
+                                    Diese Angaben stehen in <span class="fw-semibold">keiner Verbindung</span> zueinander und wurden
+                                    von verschiedenen Teilnehmern individuell formuliert.
+                                </div>
+                            </div>
+                            <div class="hint mb-3">
+                                Übersicht über zusätzliche KI-Funktionen, die von Befragten gewünscht wurden.
+                            </div>
+
+                            <div class="list-group">
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">1</span>
+                                            <span>Abfragemöglichkeiten zu Aussonderungsfristen und Revisionssicherheit in der Art - ist dieses Dokument revisionssicher abgelegt und auch in 25 Jahren noch lesbar bzw. wie lange steht dieses Dokument zur Verfügung</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">2</span>
+                                            <span>Chat zur Durchführung von Aufgaben mit Beantwortung von Wissensfragen und direkter Leitung in den entsprechenden Prozess</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">3</span>
+                                            <span>Dass ein KI auch sagen kann, "weiss ich nicht" oder "kann ich nicht zuordnen: Menschlicher Eingriff nötig". Fehler zu machen oder zuzugeben, dass man nicht weißt ist keine Schwäche und steigert das Vertrauen. Menschen machen es jeden Tag!</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">4</span>
+                                            <span>E-Umlaufmappe</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">5</span>
+                                            <span>Formular-/Dokumentenerzeugung mit Ablage</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">6</span>
+                                            <span>KI als Workflow-Architekt und Formular-Designer, KI-gestützter Formular-Generator, KI-gestützter Workflow-Generator</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">7</span>
+                                            <span>KI-gesteuerte Qualitätssicherung, d. h. die Prüfung von Daten an oder in Dokumenten anhand festgelegter Kriterien, um sicherzustellen, dass Daten korrekt und vollständig hinterlegt sind.</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">8</span>
+                                            <span>Regelbasierte Steuerung / Prozessautomation: z.B. automatische Weiterleitung von Rechnungen in die Freigabe</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div>
+                                            <span class="badge bg-primary me-2">9</span>
+                                            <span>KI-gestützte Prüfung auf Dubletten von Dokumenten im DMS, um doppelte Datenhaltung einzudämmen</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ergebnisse -->
+        <div class="mt-4" id="resultsSection" style="display:none;">
+            <div class="card compare-result">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <h2 class="h5 mb-1">Vergleichsauswertung</h2>
+                            <div class="hint">Vergleichsauswertung: Ihre Eingaben im Abgleich mit Medianwerten der Befragung für die gewählte Vergleichsgruppe.</div>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm" id="btnBackToQuestions">Zurück zu Fragen</button>
+                    </div>
+
+                    <hr />
+
+                    <div id="resultsContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky actions -->
+        <div class="sticky-actions" id="stickyActions">
+            <div class="container">
+                <div class="d-flex gap-2 justify-content-end flex-wrap">
+                    <button class="btn btn-outline-danger" id="btnResetAll">Alles zurücksetzen</button>
+                    <button class="btn btn-primary" id="btnCompare">Vergleichen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery + Bootstrap JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ###############################################################
+        // 🔧 Konfiguration / Datenmodell
+        // ###############################################################
+
+        /**
+         * Skala-Labels für Funktionalitätsbewertung
+         * Wertebereich: 0 (kein Nutzen) bis 3 (sehr hoher Nutzen)
+         */
+        const scaleLabelsFunktionen = 
+        {
+            0: "kein Nutzen",
+            1: "geringer Nutzen",
+            2: "hoher Nutzen",
+            3: "sehr hoher Nutzen"
+        }
+
+        /**
+         * Skala-Labels für On-Premises-Bewertung
+         * Wertebereich: 0 (unwichtig) bis 3 (sehr wichtig)
+         */
+        const scaleLabelsOnPrem = 
+        {
+            0: "unwichtig",
+            1: "eher unwichtig",
+            2: "eher wichtig",
+            3: "sehr wichtig"
+        }
+
+        /**
+         * Definition der KI-Funktionalitäten für Reiter 1
+         * Jedes Item hat einen eindeutigen Key und ein anzuzeigendes Label
+         */
+        const funktionItems = 
+        [
+            { key: "doc_recognition", label: "Automatische Dokumentenerkennung" },
+            { key: "data_extraction", label: "Datenextraktion" },
+            { key: "scan_separation", label: "Dokumententrennung beim Scannen" },
+            { key: "smart_tagging", label: "Smart Tagging / Indexierung" },
+            { key: "process_automation", label: "Regelbasierte Steuerung / Prozessautomation" },
+            { key: "nlp_search", label: "Dokumentsuche in natürlicher Sprache (NLP-Suche)" },
+            { key: "doc_chat", label: "Dokumenten-Chat" }
+        ]
+
+        /**
+         * Definition der Betriebsform-Fragen für Reiter 2
+         * Enthält Skala-Items und Auswahl-Items
+         */
+        const betriebItems = 
+        [
+            {
+                key: "onprem_importance",
+                type: "scale",
+                label: "Wie wichtig ist es Ihnen, KI-Lösungen lokal (On-Premises) zu betreiben?"
+            },
+            {
+                key: "onprem_capability",
+                type: "radio",
+                label: "Verfügt Ihre Hochschule über die Möglichkeit, KI-Modelle On-Premises zu betreiben?",
+                options: 
+                [
+                    { value: "ja", text: "Ja" },
+                    { value: "teilweise", text: "Teilweise / in Pilotprojekten" },
+                    { value: "nein", text: "Nein" }
+                ]
+            },
+            {
+                key: "cloud_feasible",
+                type: "radio",
+                label: "Können Sie sich vorstellen, KI-Funktionalitäten über eine Cloud-Lösung zu beziehen?",
+                options: 
+                [
+                    { value: "ja_un", text: "Ja, uneingeschränkt" },
+                    { value: "ja_krit", text: "Ja, aber nur für unkritische Anwendungsfälle" },
+                    { value: "nein", text: "Nein" }
+                ]
+            }
+        ]
+
+        /**
+         * Definition der Chancen-Items für Reiter 2
+         */
+        const chancenItems = 
+        [
+            { key: "effizienz", label: "Effizienzsteigerung" },
+            { key: "entlastung", label: "Entlastung der Mitarbeitenden" },
+            { key: "qualitaet", label: "Verbesserte Informationsqualität" },
+            { key: "nutzerfreundlichkeit", label: "Höhere Nutzerfreundlichkeit" }
+        ]
+
+        /**
+         * Absolute Häufigkeiten für Chancen (Gesamtstichprobe)
+         * Quelle: JSON-Export der Befragung
+         */
+        const chancenFrequencies = 
+        {
+            effizienz: 16,
+            entlastung: 13,
+            nutzerfreundlichkeit: 11,
+            qualitaet: 8
+        }
+
+        /**
+         * Definition der Hemmnisse-Items für Reiter 2
+         */
+        const hemmnisseItems = 
+        [
+            { key: "fehlende_ressourcen", label: "Fehlende Ressourcen" },
+            { key: "datenschutz", label: "Datenschutz" },
+            { key: "akzeptanz", label: "Akzeptanz durch Mitarbeitende" },
+            { key: "kosten", label: "Kosten" },
+            { key: "governance", label: "Governance/Regulatorik" }
+        ]
+
+        /**
+         * Absolute Häufigkeiten für Hemmnisse (Gesamtstichprobe)
+         * Quelle: JSON-Export der Befragung
+         */
+        const hemmnisseFrequencies = 
+        {
+            datenschutz: 16,
+            akzeptanz: 9,
+            fehlende_ressourcen: 9,
+            governance: 9,
+            kosten: 9
+        }
+
+        /**
+         * Bedingte relative Häufigkeiten für Chancen nach Rolle
+         * Werte in Prozent (%)
+         */
+        const chancenPriorities = 
+        {
+            orga: 
+            {
+                effizienz: 33.3,
+                entlastung: 30,
+                nutzerfreundlichkeit: 23.3,
+                qualitaet: 13.3
+            },
+            technik: 
+            {
+                effizienz: 33.3,
+                entlastung: 22.2,
+                nutzerfreundlichkeit: 22.2,
+                qualitaet: 22.2
+            }
+        }
+
+        /**
+         * Bedingte relative Häufigkeiten für Hemmnisse nach Rolle
+         * Werte in Prozent (%)
+         */
+        const hemmnissePriorities = 
+        {
+            orga: 
+            {
+                datenschutz: 28.1,
+                fehlende_ressourcen: 25,
+                governance: 18.8,
+                akzeptanz: 15.6,
+                kosten: 12.5
+            },
+            technik: 
+            {
+                datenschutz: 35,
+                kosten: 25,
+                akzeptanz: 20,
+                governance: 15,
+                fehlende_ressourcen: 5
+            }
+        }
+
+        /**
+         * Prioritäten nach Rolle (Ja-Anteil aus Befragung)
+         * Werte in Prozent (%)
+         */
+        const priorities = 
+        {
+            orga: 
+            {
+                data_extraction: 58.3,
+                doc_chat: 0,
+                doc_recognition: 75,
+                scan_separation: 25,
+                smart_tagging: 33.3,
+                nlp_search: 8.3,
+                process_automation: 33.3
+            },
+            technik: 
+            {
+                data_extraction: 42.9,
+                doc_chat: 28.6,
+                doc_recognition: 71.4,
+                scan_separation: 42.9,
+                smart_tagging: 28.6,
+                nlp_search: 28.6,
+                process_automation: 28.6
+            }
+        }
+
+        /**
+         * Benchmark-Daten (Medianwerte) für Vergleich
+         * Enthält Medianwerte für alle Fragen nach Vergleichsgruppe
+         */
+        const benchmark = 
+        {
+            funktion: 
+            {
+                doc_recognition:   { all: 3, technik: 2, orga: 3 },
+                data_extraction:   { all: 2, technik: 2, orga: 2 },
+                doc_chat:          { all: 2, technik: 2, orga: 1 },
+                nlp_search:        { all: 2, technik: 2, orga: 2 },
+                process_automation:{ all: 2, technik: 2, orga: 2 },
+                scan_separation:   { all: 2, technik: 2, orga: 2 },
+                smart_tagging:     { all: 2, technik: 2, orga: 2 }
+            },
+            betrieb: 
+            {
+                onprem_importance: { all: 2, technik: 2, orga: 2 },
+                onprem_capability: { all: "teilweise", technik: "teilweise", orga: "teilweise" },
+                cloud_feasible:    { all: "ja_krit", technik: "ja_krit", orga: "ja_krit" }
+            }
+        }
+
+        /**
+         * Absolute Häufigkeiten für kurzfristige Umsetzung
+         * Quelle: JSON-Export der Befragung
+         */
+        const shortTermFrequencies = 
+        {
+            doc_recognition: 14,
+            data_extraction: 10,
+            scan_separation: 6,
+            smart_tagging: 6,
+            process_automation: 6,
+            nlp_search: 3,
+            doc_chat: 2
+        }
+
+
+        // ###############################################################
+        // 🧱 UI-Rendering-Funktionen
+        // ###############################################################
+
+        /**
+         * Rendert Radio-Buttons für Skala-Fragen (0..3)
+         * @param {string} name - Name der Radio-Button-Gruppe
+         * @param {string|number} selectedValue - Vorausgewählter Wert (optional)
+         * @param {Object} scaleLabels - Objekt mit Labels für jeden Skala-Wert
+         * @returns {string} HTML-String mit Radio-Buttons
+         */
+        function renderScaleRadios(name, selectedValue, scaleLabels) 
+        {
+            let html = ""
+            
+            for (let v = 0; v <= 3; v++) 
+            {
+                const id = `${name}_${v}`
+                const checked = (String(selectedValue) === String(v)) ? "checked" : ""
+                
+                html += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="${name}" id="${id}" value="${v}" ${checked}>
+                        <label class="form-check-label" for="${id}">${scaleLabels[v]}</label>
+                    </div>
+                `
+            }
+            
+            return html
+        }
+
+        /**
+         * Rendert Radio-Buttons für Auswahlfragen mit vorgegebenen Optionen
+         * @param {string} name - Name der Radio-Button-Gruppe
+         * @param {Array} options - Array mit Optionsobjekten { value, text }
+         * @param {string} selectedValue - Vorausgewählter Wert (optional)
+         * @returns {string} HTML-String mit Radio-Buttons
+         */
+        function renderRadioOptions(name, options, selectedValue) 
+        {
+            let html = ""
+            
+            options.forEach((opt) => 
+            {
+                const id = `${name}_${opt.value}`
+                const checked = (String(selectedValue) === String(opt.value)) ? "checked" : ""
+                
+                html += `
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="${name}" id="${id}" value="${opt.value}" ${checked}>
+                        <label class="form-check-label" for="${id}">${opt.text}</label>
+                    </div>
+                `
+            })
+            
+            return html
+        }
+
+        /**
+         * Rendert die Funktionalitäts-Fragen für Reiter 1
+         * Erzeugt für jede Funktion eine Card mit Skala-Bewertung
+         */
+        function renderFunktionQuestions() 
+        {
+            const $container = $("#funktion-questions")
+            $container.empty()
+
+            funktionItems.forEach((item) => 
+            {
+                const block = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="question-title mb-2"><span class="required-marker">*</span> ${item.label}</div>
+                            ${renderScaleRadios(`f_${item.key}`, "", scaleLabelsFunktionen)}
+                        </div>
+                    </div>
+                `
+                $container.append(block)
+            })
+        }
+
+        /**
+         * Hilfsfunktion für Drag-and-Drop: Ermittelt Element nach dem eingefügt werden soll
+         * @param {HTMLElement} container - Container-Element
+         * @param {number} y - Y-Position des Drag-Events
+         * @returns {HTMLElement|null} Element nach dem eingefügt werden soll, oder null
+         */
+        function getDragAfterElement(container, y) 
+        {
+            const draggableElements = [...container.querySelectorAll('.drag-item:not(.dragging)')]
+            
+            return draggableElements.reduce((closest, child) => 
+            {
+                const box = child.getBoundingClientRect()
+                const offset = y - box.top - box.height / 2
+                
+                if (offset < 0 && offset > closest.offset) 
+                {
+                    return { offset: offset, element: child }
+                } 
+                else 
+                {
+                    return closest
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element
+        }
+
+        /**
+         * Rendert die Drag-and-Drop-Checkliste für kurzfristige Funktionalitäten
+         * Initialisiert alle Drag-and-Drop-Events
+         */
+        function renderShortTermChecklist() 
+        {
+            const $available = $("#available")
+            const $selected = $("#selected")
+            $available.find('.drag-item').remove()
+            $selected.find('.drag-item').remove()
+
+            funktionItems.forEach((item) => 
+            {
+                const itemEl = $(`<div class="drag-item" draggable="true" data-key="${item.key}">${item.label}</div>`)
+                $available.append(itemEl)
+            })
+
+            $('.drag-item').on('dragstart', function(e) { $(this).addClass('dragging'); e.originalEvent.dataTransfer.setData('text/plain', $(this).data('key')) })
+            $('.drag-item').on('dragend', function(e) { $(this).removeClass('dragging') })
+            $('#available').on('dragover', function(e) { e.preventDefault() })
+            
+            $('#selected').on('dragover', function(e) 
+            {
+                e.preventDefault()
+                const afterElement = getDragAfterElement(this, e.originalEvent.clientY)
+                const dragging = $('.dragging')[0]
+                
+                if (afterElement == null) 
+                {
+                    this.appendChild(dragging)
+                } 
+                else 
+                {
+                    this.insertBefore(dragging, afterElement)
+                }
+            })
+
+            $('#available').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#selected')) 
+                {
+                    $('#available').append(item)
+                }
+            })
+
+            $('#selected').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#available')) 
+                {
+                    $('#selected').append(item)
+                }
+            })
+        }
+
+        /**
+         * Rendert die Drag-and-Drop-Checkliste für Chancen
+         * Initialisiert alle Drag-and-Drop-Events
+         */
+        function renderChancenChecklist() 
+        {
+            const $available = $("#chancen-available")
+            const $selected = $("#chancen-selected")
+            $available.find('.drag-item').remove()
+            $selected.find('.drag-item').remove()
+
+            chancenItems.forEach((item) => 
+            {
+                const itemEl = $(`<div class="drag-item" draggable="true" data-key="${item.key}">${item.label}</div>`)
+                $available.append(itemEl)
+            })
+
+            $('#chancen-available .drag-item, #chancen-selected .drag-item').on('dragstart', function(e) { $(this).addClass('dragging'); e.originalEvent.dataTransfer.setData('text/plain', $(this).data('key')) })
+            $('#chancen-available .drag-item, #chancen-selected .drag-item').on('dragend', function(e) { $(this).removeClass('dragging') })
+            $('#chancen-available').on('dragover', function(e) { e.preventDefault() })
+            
+            $('#chancen-selected').on('dragover', function(e) 
+            {
+                e.preventDefault()
+                const afterElement = getDragAfterElement(this, e.originalEvent.clientY)
+                const dragging = $('.dragging')[0]
+                
+                if (afterElement == null) 
+                {
+                    this.appendChild(dragging)
+                } 
+                else 
+                {
+                    this.insertBefore(dragging, afterElement)
+                }
+            })
+
+            $('#chancen-available').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#chancen-selected')) 
+                {
+                    $('#chancen-available').append(item)
+                }
+            })
+
+            $('#chancen-selected').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#chancen-available')) 
+                {
+                    $('#chancen-selected').append(item)
+                }
+            })
+        }
+
+        /**
+         * Rendert die Drag-and-Drop-Checkliste für Hemmnisse
+         * Initialisiert alle Drag-and-Drop-Events
+         */
+        function renderHemmnisseChecklist() 
+        {
+            const $available = $("#hemmnisse-available")
+            const $selected = $("#hemmnisse-selected")
+            $available.find('.drag-item').remove()
+            $selected.find('.drag-item').remove()
+
+            hemmnisseItems.forEach((item) => 
+            {
+                const itemEl = $(`<div class="drag-item" draggable="true" data-key="${item.key}">${item.label}</div>`)
+                $available.append(itemEl)
+            })
+
+            $('#hemmnisse-available .drag-item, #hemmnisse-selected .drag-item').on('dragstart', function(e) { $(this).addClass('dragging'); e.originalEvent.dataTransfer.setData('text/plain', $(this).data('key')) })
+            $('#hemmnisse-available .drag-item, #hemmnisse-selected .drag-item').on('dragend', function(e) { $(this).removeClass('dragging') })
+            $('#hemmnisse-available').on('dragover', function(e) { e.preventDefault() })
+            
+            $('#hemmnisse-selected').on('dragover', function(e) 
+            {
+                e.preventDefault()
+                const afterElement = getDragAfterElement(this, e.originalEvent.clientY)
+                const dragging = $('.dragging')[0]
+                
+                if (afterElement == null) 
+                {
+                    this.appendChild(dragging)
+                } 
+                else 
+                {
+                    this.insertBefore(dragging, afterElement)
+                }
+            })
+
+            $('#hemmnisse-available').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#hemmnisse-selected')) 
+                {
+                    $('#hemmnisse-available').append(item)
+                }
+            })
+
+            $('#hemmnisse-selected').on('drop', function(e) 
+            {
+                e.preventDefault()
+                const key = e.originalEvent.dataTransfer.getData('text/plain')
+                const item = $(`.drag-item[data-key="${key}"]`)
+                
+                if (item.parent().is('#hemmnisse-available')) 
+                {
+                    $('#hemmnisse-selected').append(item)
+                }
+            })
+        }
+
+        /**
+         * Rendert die Betriebsform-Fragen für Reiter 2
+         * Unterstützt verschiedene Fragetypen (scale, radio, select)
+         */
+        function renderBetriebQuestions() 
+        {
+            const $container = $("#betrieb-questions")
+            $container.empty()
+
+            betriebItems.forEach((item) => 
+            {
+                let inner = ""
+                
+                if (item.type === "scale") 
+                {
+                    inner = renderScaleRadios(`b_${item.key}`, "", scaleLabelsOnPrem)
+                } 
+                else if (item.type === "radio") 
+                {
+                    inner = renderRadioOptions(`b_${item.key}`, item.options, "")
+                } 
+                else if (item.type === "select") 
+                {
+                    const opts = item.options.map(o => `<option value="${o.value}">${o.text}</option>`).join("")
+                    const selectId = item.key === "role_type" ? "role_type_tab2" : `b_${item.key}`
+                    inner = `<select class="form-select" id="${selectId}">${opts}</select>`
+                }
+
+                $container.append(`
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="question-title mb-2"><span class="required-marker">*</span> ${item.label}</div>
+                            ${inner}
+                        </div>
+                    </div>
+                `)
+            })
+        }
+
+
+        // ###############################################################
+        // ✅ Validierung & Datensammlung
+        // ###############################################################
+
+        /**
+         * Ermittelt den ausgewählten Wert einer Skala-Frage (Radio-Buttons)
+         * @param {string} radioName - Name der Radio-Button-Gruppe
+         * @returns {number|null} Ausgewählter Wert oder null wenn nichts ausgewählt
+         */
+        function getSelectedScaleValue(radioName) 
+        {
+            const v = $(`input[name="${radioName}"]:checked`).val()
+            return (v === undefined) ? null : Number(v)
+        }
+
+        /**
+         * Sammelt und validiert die Eingaben aus Reiter 1 (Funktionalitäten)
+         * @returns {Object} Objekt mit { data, missing } wobei missing die fehlenden Felder enthält
+         */
+        function collectInputsFunktionen() 
+        {
+            const data = 
+            {
+                funktion: {},
+                shortTerm: [],
+                betrieb: { comparison_type: $("#comparison_type").val() }
+            }
+
+            let missing = []
+            
+            funktionItems.forEach((item) => 
+            {
+                const v = getSelectedScaleValue(`f_${item.key}`)
+                
+                if (v === null) 
+                {
+                    missing.push(item.label)
+                } 
+                else 
+                {
+                    data.funktion[item.key] = v
+                }
+            })
+
+            $('#selected .drag-item').each(function() 
+            {
+                data.shortTerm.push($(this).data('key'))
+            })
+            
+            if (data.shortTerm.length < 1) 
+            {
+                missing.push("Kurzfristig realistisch: mindestens 1 Auswahl")
+            }
+
+            if (!data.betrieb.comparison_type) 
+            {
+                missing.push("Mit welcher Gruppe möchten Sie Ihr Ergebnis vergleichen?")
+            }
+
+            return { data, missing }
+        }
+
+        /**
+         * Sammelt und validiert die Eingaben aus Reiter 2 (Betrieb)
+         * @returns {Object} Objekt mit { data, missing } wobei missing die fehlenden Felder enthält
+         */
+        function collectInputsBetrieb() 
+        {
+            const data = 
+            {
+                funktion: {},
+                shortTerm: [],
+                chancen: [],
+                hemmnisse: [],
+                betrieb: { comparison_type: $("#comparison_type").val() }
+            }
+
+            let missing = []
+            
+            betriebItems.forEach((item) => 
+            {
+                if (item.type === "scale") 
+                {
+                    const v = getSelectedScaleValue(`b_${item.key}`)
+                    
+                    if (v === null) 
+                    {
+                        missing.push(item.label)
+                    } 
+                    else 
+                    {
+                        data.betrieb[item.key] = v
+                    }
+                } 
+                else if (item.type === "radio") 
+                {
+                    const v = $(`input[name="b_${item.key}"]:checked`).val()
+                    
+                    if (!v) 
+                    {
+                        missing.push(item.label)
+                    } 
+                    else 
+                    {
+                        data.betrieb[item.key] = v
+                    }
+                } 
+                else if (item.type === "select") 
+                {
+                    const v = $(`#b_${item.key}`).val()
+                    
+                    if (!v) 
+                    {
+                        missing.push(item.label)
+                    } 
+                    else 
+                    {
+                        data.betrieb[item.key] = v
+                    }
+                }
+            })
+
+            $('#chancen-selected .drag-item').each(function() 
+            {
+                data.chancen.push($(this).data('key'))
+            })
+            
+            if (data.chancen.length < 1) 
+            {
+                missing.push("Welche Chancen sehen Sie in der Nutzung von KI im DMS?: mindestens 1 Auswahl")
+            }
+
+            $('#hemmnisse-selected .drag-item').each(function() 
+            {
+                data.hemmnisse.push($(this).data('key'))
+            })
+            
+            if (data.hemmnisse.length < 1) 
+            {
+                missing.push("Welche Herausforderungen/Hemmnisse erwarten Sie?: mindestens 1 Auswahl")
+            }
+
+            if (!data.betrieb.comparison_type) 
+            {
+                missing.push("Mit welcher Gruppe möchten Sie Ihr Ergebnis vergleichen?")
+            }
+
+            return { data, missing }
+        }
+
+
+        // ###############################################################
+        // 📊 Vergleich & Ergebnis-Rendering
+        // ###############################################################
+
+        /**
+         * Rendert eine Ergebniszeile für den Vergleich
+         * @param {string} title - Titel der Frage
+         * @param {*} yours - Ihre Antwort
+         * @param {*} medianAll - Median Gesamtstichprobe
+         * @param {*} medianTech - Median Technische Betreuung
+         * @param {*} medianOrga - Median Organisatorische Verantwortung
+         * @param {string} comparisonType - Gewählte Vergleichsgruppe (all/technik/orga)
+         * @param {Object} scaleLabels - Labels für die Skalenwerte
+         * @returns {string} HTML-String mit Vergleichsdarstellung
+         */
+        function renderResultRow(title, yours, medianAll, medianTech, medianOrga, comparisonType, scaleLabels) 
+        {
+            const yoursLabel = (yours === null || yours === undefined) ? "—" : scaleLabels[yours]
+            let columns = []
+
+            if (comparisonType === "all") 
+            {
+                columns = 
+                [
+                    { label: "Ihre Einschätzung", value: yoursLabel },
+                    { label: "Median (Gesamtstichprobe)", value: scaleLabels[medianAll] }
+                ]
+            } 
+            else if (comparisonType === "technik") 
+            {
+                columns = 
+                [
+                    { label: "Ihre Einschätzung", value: yoursLabel },
+                    { label: "Median (Technische Betreuung)", value: scaleLabels[medianTech] }
+                ]
+            } 
+            else if (comparisonType === "orga") 
+            {
+                columns = 
+                [
+                    { label: "Ihre Einschätzung", value: yoursLabel },
+                    { label: "Median (Organisatorische Verantwortung)", value: scaleLabels[medianOrga] }
+                ]
+            }
+            else if (comparisonType === "all_detailed") 
+            {
+                columns = 
+                [
+                    { label: "Ihre Einschätzung", value: yoursLabel },
+                    { label: "Median (Gesamtstichprobe)", value: scaleLabels[medianAll] },
+                    { label: "Median (Technische Betreuung)", value: scaleLabels[medianTech] },
+                    { label: "Median (Organisatorische Verantwortung)", value: scaleLabels[medianOrga] }
+                ]
+            }
+
+            return `
+                <div class="mb-3">
+                    <div class="fw-semibold mb-2">${title}</div>
+                    <div class="row g-3">
+                        ${columns.map(col => `
+                            <div class="col-12 col-md-${comparisonType === 'all_detailed' ? '3' : '6'}">
+                                <div class="drag-list">
+                                    <h6>${col.label}</h6>
+                                    <div class="value-pill">${col.value}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `
+        }
+
+        /**
+         * Rendert die Ergebnisansicht für Reiter 1 (Funktionalitäten)
+         * @param {Object} collected - Gesammelte Nutzereingaben
+         */
+        function renderResultsFunktionen(collected) 
+        {
+            const comparisonType = collected.betrieb.comparison_type
+            const $out = $("#resultsContainer")
+            $out.empty()
+
+            $out.append(`<div class="fw-semibold mb-2">Funktionalitäten</div>`)
+            
+            funktionItems.forEach((item) => 
+            {
+                const yours = collected.funktion[item.key]
+                const med = benchmark.funktion[item.key]
+                $out.append(renderResultRow(item.label, yours, med.all, med.technik, med.orga, comparisonType, scaleLabelsFunktionen))
+            })
+
+            $out.append(`<hr /><div class="fw-semibold mb-2">Einführungsreihenfolge</div>`)
+            
+            const userOrder = collected.shortTerm.map(k => funktionItems.find(x => x.key === k)?.label || k)
+            let comparisonOrder = []
+            let comparisonOrderTech = []
+            let comparisonOrderOrga = []
+            
+            if (comparisonType === "all") 
+            {
+                comparisonOrder = Object.entries(shortTermFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(shortTermFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+            } 
+            else if (comparisonType === "technik") 
+            {
+                comparisonOrder = Object.entries(priorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            } 
+            else if (comparisonType === "orga") 
+            {
+                comparisonOrder = Object.entries(priorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+            else if (comparisonType === "all_detailed") 
+            {
+                comparisonOrder = Object.entries(shortTermFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(shortTermFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+                
+                comparisonOrderTech = Object.entries(priorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+                
+                comparisonOrderOrga = Object.entries(priorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = funktionItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+
+            if (comparisonType === "all_detailed") 
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Gesamtstichprobe)</h6>
+                                ${comparisonOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Technische Betreuung)</h6>
+                                ${comparisonOrderTech.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Organisatorische Verantwortung)</h6>
+                                ${comparisonOrderOrga.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+            else
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (${comparisonType === "all" ? "Gesamtstichprobe" : comparisonType === "technik" ? "Technische Betreuung" : "Organisatorische Verantwortung"})</h6>
+                                ${comparisonOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+
+            $("#resultsSection").show()
+            $("#comparisonQuestion").hide()
+            $("#tabsSection").hide()
+            $("#stickyActions").hide()
+            $("html, body").animate({ scrollTop: $("#resultsSection").offset().top - 20 }, 350)
+        }
+
+        /**
+         * Rendert die Ergebnisansicht für Reiter 2 (Betrieb)
+         * @param {Object} collected - Gesammelte Nutzereingaben
+         */
+        function renderResultsBetrieb(collected) 
+        {
+            const comparisonType = collected.betrieb.comparison_type
+            const $out = $("#resultsContainer")
+            $out.empty()
+
+            $out.append(`<div class="fw-semibold mb-2">Betriebsform / Strategische Dimensionen</div>`)
+
+            const b1 = benchmark.betrieb.onprem_importance
+            $out.append(renderResultRow(
+                "Wichtigkeit: On-Premises-Betrieb",
+                collected.betrieb.onprem_importance,
+                b1.all, b1.technik, b1.orga,
+                comparisonType,
+                scaleLabelsOnPrem
+            ))
+
+            const capLabels = 
+            {
+                "ja": "Ja",
+                "teilweise": "Teilweise / in Pilotprojekten",
+                "nein": "Nein"
+            }
+            const b2 = benchmark.betrieb.onprem_capability
+            $out.append(renderResultRow(
+                "On-Prem Fähigkeit",
+                collected.betrieb.onprem_capability,
+                b2.all, b2.technik, b2.orga,
+                comparisonType,
+                capLabels
+            ))
+
+            const cloudLabels = 
+            {
+                "ja_un": "Ja, uneingeschränkt",
+                "ja_krit": "Ja, aber nur für unkritische Anwendungsfälle",
+                "nein": "Nein"
+            }
+            const b3 = benchmark.betrieb.cloud_feasible
+            $out.append(renderResultRow(
+                "Cloud-Lösung vorstellbar",
+                collected.betrieb.cloud_feasible,
+                b3.all, b3.technik, b3.orga,
+                comparisonType,
+                cloudLabels
+            ))
+
+            $out.append(`<hr /><div class="fw-semibold mb-2">Chancen von KI im DMS</div>`)
+            
+            const userChancenOrder = collected.chancen.map(k => chancenItems.find(x => x.key === k)?.label || k)
+            let comparisonChancenOrder = []
+            let comparisonChancenOrderTech = []
+            let comparisonChancenOrderOrga = []
+            
+            if (comparisonType === "all") 
+            {
+                comparisonChancenOrder = Object.entries(chancenFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(chancenFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+            } 
+            else if (comparisonType === "technik") 
+            {
+                comparisonChancenOrder = Object.entries(chancenPriorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            } 
+            else if (comparisonType === "orga") 
+            {
+                comparisonChancenOrder = Object.entries(chancenPriorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+            else if (comparisonType === "all_detailed") 
+            {
+                comparisonChancenOrder = Object.entries(chancenFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(chancenFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+                
+                comparisonChancenOrderTech = Object.entries(chancenPriorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+                
+                comparisonChancenOrderOrga = Object.entries(chancenPriorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = chancenItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+
+            if (comparisonType === "all_detailed") 
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userChancenOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Gesamtstichprobe)</h6>
+                                ${comparisonChancenOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Technische Betreuung)</h6>
+                                ${comparisonChancenOrderTech.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Organisatorische Verantwortung)</h6>
+                                ${comparisonChancenOrderOrga.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+            else
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userChancenOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (${comparisonType === "all" ? "Gesamtstichprobe" : comparisonType === "technik" ? "Technische Betreuung" : "Organisatorische Verantwortung"})</h6>
+                                ${comparisonChancenOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+
+            $out.append(`<hr /><div class="fw-semibold mb-2">Herausforderungen/Hemmnisse</div>`)
+            
+            const userHemmnisseOrder = collected.hemmnisse.map(k => hemmnisseItems.find(x => x.key === k)?.label || k)
+            let comparisonHemmnisseOrder = []
+            let comparisonHemmnisseOrderTech = []
+            let comparisonHemmnisseOrderOrga = []
+            
+            if (comparisonType === "all") 
+            {
+                comparisonHemmnisseOrder = Object.entries(hemmnisseFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(hemmnisseFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+            } 
+            else if (comparisonType === "technik") 
+            {
+                comparisonHemmnisseOrder = Object.entries(hemmnissePriorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            } 
+            else if (comparisonType === "orga") 
+            {
+                comparisonHemmnisseOrder = Object.entries(hemmnissePriorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+            else if (comparisonType === "all_detailed") 
+            {
+                comparisonHemmnisseOrder = Object.entries(hemmnisseFrequencies)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, count]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        const total = Object.values(hemmnisseFrequencies).reduce((sum, val) => sum + val, 0)
+                        const percent = ((count / total) * 100).toFixed(1)
+                        return `${label} (${percent}%)`
+                    })
+                
+                comparisonHemmnisseOrderTech = Object.entries(hemmnissePriorities.technik)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+                
+                comparisonHemmnisseOrderOrga = Object.entries(hemmnissePriorities.orga)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([key, percent]) => 
+                    {
+                        const label = hemmnisseItems.find(x => x.key === key)?.label || key
+                        return `${label} (${percent.toFixed(1)}%)`
+                    })
+            }
+
+            if (comparisonType === "all_detailed") 
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userHemmnisseOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Gesamtstichprobe)</h6>
+                                ${comparisonHemmnisseOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Technische Betreuung)</h6>
+                                ${comparisonHemmnisseOrderTech.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (Organisatorische Verantwortung)</h6>
+                                ${comparisonHemmnisseOrderOrga.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+            else
+            {
+                $out.append(`
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Ihre Reihenfolge</h6>
+                                ${userHemmnisseOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="drag-list">
+                                <h6>Reihenfolge (${comparisonType === "all" ? "Gesamtstichprobe" : comparisonType === "technik" ? "Technische Betreuung" : "Organisatorische Verantwortung"})</h6>
+                                ${comparisonHemmnisseOrder.map(label => `<div class="drag-item">${label}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `)
+            }
+
+            $("#resultsSection").show()
+            $("#comparisonQuestion").hide()
+            $("#tabsSection").hide()
+            $("#stickyActions").hide()
+            $("html, body").animate({ scrollTop: $("#resultsSection").offset().top - 20 }, 350)
+        }
+
+
+        // ###############################################################
+        // 🔄 Reset-Funktionalität
+        // ###############################################################
+
+        /**
+         * Setzt alle Eingaben und Auswahlen zurück
+         * Blendet Ergebnisansicht aus und entfernt Fehlermeldungen
+         */
+        function resetAll() 
+        {
+            $('input[type="radio"]').prop('checked', false)
+            $('select').val('')
+            $('input[type="checkbox"]').prop('checked', false)
+            $("#resultsSection").hide()
+            $(".container").first().find(".alert-danger").remove()
+            $("#comparison_type").val('')
+        }
+
+
+        // ###############################################################
+        // 🚀 Initialisierung & Event-Handler
+        // ###############################################################
+
+        $(function () 
+        {
+            renderFunktionQuestions()
+            renderShortTermChecklist()
+            renderBetriebQuestions()
+            renderChancenChecklist()
+            renderHemmnisseChecklist()
+
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) { resetAll() })
+
+            $("#btnCompare").on("click", function () 
+            {
+                const activeTab = $('.tab-pane.active').attr('id')
+                let res
+                
+                if (activeTab === 'pane-funktionen') 
+                {
+                    res = collectInputsFunktionen()
+                } 
+                else if (activeTab === 'pane-betrieb') 
+                {
+                    res = collectInputsBetrieb()
+                }
+                
+                if (res.missing.length > 0) 
+                {
+                    const list = res.missing.map(x => `<li>${$("<div>").text(x).html()}</li>`).join("")
+                    const html = `
+                        <div class="alert alert-danger">
+                            <div class="fw-semibold mb-1">Bitte vervollständigen</div>
+                            <ul class="mb-0">${list}</ul>
+                        </div>
+                    `
+                    $(".container").first().find(".alert-danger").remove()
+                    $(".container").first().prepend(html)
+                    $("html, body").animate({ scrollTop: 0 }, 250)
+                    return
+                }
+                
+                $(".container").first().find(".alert-danger").remove()
+                
+                if (activeTab === 'pane-funktionen') 
+                {
+                    renderResultsFunktionen(res.data)
+                } 
+                else if (activeTab === 'pane-betrieb') 
+                {
+                    renderResultsBetrieb(res.data)
+                }
+            })
+
+            $("#btnResetResults").on("click", function () { $("#resultsSection").hide() })
+
+            $("#btnBackToQuestions").on("click", function () 
+            {
+                $("#resultsSection").hide()
+                $("#comparisonQuestion").show()
+                $("#tabsSection").show()
+                $("#stickyActions").show()
+            })
+
+            $("#btnResetAll").on("click", function () { resetAll() })
+        })
+    </script>
+</body>
+</html>
