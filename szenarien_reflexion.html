@@ -134,7 +134,50 @@
         .drag-item.dragging {
             opacity: 0.5;
         }
-    </style>
+        
+        /* Footer-Design mit Bootstrap-Klassen */
+        .footer {
+            margin-top: 56px;
+            padding-bottom: 24px;
+        }
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .footer-section {
+            margin-bottom: 24px;
+        }
+        .footer-title {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 6px;
+            color: #0d6efd;
+        }
+        .footer-divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 12px 0;
+        }
+        .footer-github {
+            color: #0d6efd;
+            text-decoration: underline;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .footer-section p {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+‚        /* Footer-Design mit Bootstrap-Klassen */
+        .footer { margin-top: 56px; padding-bottom: 24px; }
+        .footer-content { max-width: 900px; margin: 0 auto; }
+        .footer-section { margin-bottom: 24px; }
+        .footer-title { font-weight: 600; font-size: 1.1em; margin-bottom: 6px; color: #0d6efd; }
+        .footer-divider { height: 1px; background: #e9ecef; margin: 12px 0; }
+        .footer-github { color: #0d6efd; text-decoration: underline; font-size: 1em; font-weight: 500; }
+        .footer-section p { margin-bottom: 8px; line-height: 1.6; }
+        </style>
 </head>
 <body>
 
@@ -151,8 +194,11 @@
         <div class="alert alert-info">
             <div class="fw-semibold mb-1">Hinweis</div>
             <div>
-                Dieses Tool gibt <span class="fw-semibold">keine Empfehlungen</span> aus. Nach Klick auf <span class="fw-semibold">„Vergleichen"</span>
-                werden Ihre Eingaben den Medianwerten der Befragung gegenübergestellt (gesamt sowie nach Rollenprofil).
+                Dieses Tool stellt keine Handlungsempfehlungen oder verbindlichen Vorgaben bereit.<br>
+                Nach Klick auf <span class="fw-semibold">„Vergleichen“</span> werden Ihre Einschätzungen den Medianwerten der Befragung (gesamt sowie differenziert nach Rollenprofil) gegenübergestellt.<br><br>
+                Das Ziel besteht nicht darin, eine „richtige“ Entscheidung vorzugeben oder bestehende Positionen zu korrigieren. Vielmehr soll das Tool zur strukturierten Selbstreflexion anregen und Transparenz über mögliche Abweichungen zwischen eigener Einschätzung und aggregierten Praxiswerten schaffen.<br><br>
+                Die dargestellten Vergleichswerte enthalten bewusst keine normativen Begründungen im Sinne einer Entscheidungsvorlage. Sie bilden ausschließlich empirisch erhobene Einschätzungen ab. Strategische Entscheidungen erfordern darüber hinaus eine eigene Kontextanalyse, organisatorische Bewertung sowie eine sachliche Abwägung der jeweiligen Rahmenbedingungen der Hochschule.<br><br>
+                Das Tool ist somit als Reflexionsimpuls zu verstehen – nicht als Ersatz für fachliche Analyse, Gremienentscheidungen oder strategische Planung.
             </div>
         </div>
 
@@ -399,6 +445,63 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer py-4 bg-white">
+        <div class="container">
+            <div class="card border-0 shadow-sm mx-auto" style="border-radius: 14px; max-width: 700px;">
+                <div class="px-3 py-3">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            <h6 class="fw-semibold text-primary mb-0">Über diese Anwendung</h6>
+                        </div>
+                        <p class="text-muted mb-1 small">Diese Webanwendung ist Bestandteil der Masterarbeit zur Einführung von KI-Funktionalitäten in Dokumentenmanagementsystemen an Hochschulen.</p>
+                        <p class="text-muted mb-0 small">Sie dient der strukturierten Selbstreflexion sowie der Einordnung strategischer Entscheidungen im Kontext von On-Premises- und Cloud-Szenarien.</p>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-journal-text text-primary me-2"></i>
+                            <h6 class="fw-semibold text-primary mb-0">Methodische Grundlage</h6>
+                        </div>
+                        <p class="text-muted mb-1 small">Die Vergleichswerte basieren auf einer explorativen Expertenbefragung im Rahmen einer Delphi-orientierten Untersuchung.</p>
+                        <p class="text-muted mb-0 small">Angezeigt werden Medianwerte der Gesamtstichprobe sowie differenziert nach Rollenprofil.</p>
+                    </div>
+                    <hr class="my-2" />
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-code-slash text-primary me-2"></i>
+                            <h6 class="fw-semibold text-primary mb-0">Transparenz & Reproduzierbarkeit</h6>
+                        </div>
+                        <p class="text-muted mb-1 small">Die technische Umsetzung, das Datenmodell sowie die Berechnungslogik sind zur wissenschaftlichen Nachvollziehbarkeit offen dokumentiert.</p>
+                        <p class="text-muted mb-1 small">Quellcode und Dokumentation:</p>
+                        <a href="https://github.com/wwg58tvts2-del/master-reflexionstool"
+                             target="_blank"
+                             class="fw-semibold text-primary text-decoration-none footer-github-link"
+                             style="word-break: break-all;">
+                            https://github.com/wwg58tvts2-del/master-reflexionstool
+                        </a>
+                    </div>
+                    <hr class="my-2" />
+                    <div>
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="bi bi-shield-check text-primary me-2"></i>
+                            <h6 class="fw-semibold text-primary mb-0">Datenschutz</h6>
+                        </div>
+                        <p class="text-muted mb-0 small">Die Anwendung ist vollständig clientseitig implementiert (HTML, CSS, JavaScript). Es erfolgt keine Speicherung oder Übertragung personenbezogener Daten.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+    .footer-github-link:hover {
+        text-decoration: underline;
+    }
+    </style>
     </div>
 
     <!-- jQuery + Bootstrap JS (CDN) -->
@@ -1791,4 +1894,5 @@
         })
     </script>
 </body>
+
 </html>
